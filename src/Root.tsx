@@ -23,7 +23,6 @@ export const RemotionRoot: React.FC = () => {
         from: 100,
         to: 950,
         bgmFadeOutOffsetSeconds: 2,
-        bgmStartOffsetSeconds: 5,
       }}
     />
   );
