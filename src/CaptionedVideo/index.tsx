@@ -29,6 +29,7 @@ export const captionedVideoSchema = z.object({
   audio: z.string(),
   from: z.number().optional(),
   to: z.number().optional(),
+  bgmFadeOutOffsetSeconds: z.number().optional(),
 });
 
 export const calculateCaptionedVideoMetadata: CalculateMetadataFunction<
@@ -55,6 +56,7 @@ export const CaptionedVideo: React.FC<z.infer<typeof captionedVideoSchema>> = ({
   from,
   to,
   audio,
+  bgmFadeOutOffsetSeconds,
 }) => {
   const [subtitles, setSubtitles] = useState<VideoCaption[]>([]);
   const { delayRender, continueRender } = useDelayRender();
@@ -96,12 +98,18 @@ export const CaptionedVideo: React.FC<z.infer<typeof captionedVideoSchema>> = ({
     <AbsoluteFill style={{ backgroundColor: "white" }}>
       <Html5Audio
         src={audio}
+        trimBefore={130}
         volume={(f) => {
-          const FADE_SECONDS = 2.5;
-          const baseVolume = 0.1;
+          const FADE_SECONDS = 3;
+          const baseVolume = 0.05;
           const fadeFrames = Math.max(1, Math.round(FADE_SECONDS * fps));
+          const offsetSecs = typeof bgmFadeOutOffsetSeconds === "number" ? bgmFadeOutOffsetSeconds : 0;
+          const offsetFrames = Math.max(0, Math.round(offsetSecs * fps));
+
           const inFactor = Math.min(1, f / fadeFrames);
-          const outFactor = Math.min(1, (durationInFrames - f) / fadeFrames);
+          // start fading out earlier by subtracting offsetFrames from remaining frames
+          const remaining = durationInFrames - f - offsetFrames;
+          const outFactor = Math.min(1, Math.max(0, remaining / fadeFrames));
           return baseVolume * inFactor * outFactor;
         }}
       />
