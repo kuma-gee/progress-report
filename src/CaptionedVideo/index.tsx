@@ -70,12 +70,21 @@ export const CaptionedVideo: React.FC<z.infer<typeof captionedVideoSchema>> = ({
     .replace(/.mov$/, ".json")
     .replace(/.webm$/, ".json");
 
+  const fileName = src.split("/").pop() ?? "video";
+  const capitalizedSrc = fileName.charAt(0).toUpperCase() + fileName.slice(1);
+
   const fetchSubtitles = useCallback(async () => {
     try {
       await loadFont();
-      const res = await fetch(subtitlesFile);
-      const data = (await res.json()) as VideoCaption[];
-      setSubtitles(data);
+      // const res = await fetch(subtitlesFile);
+      // const data = (await res.json()) as VideoCaption[];
+      setSubtitles([
+        {
+          text: capitalizedSrc.replace("-", " ").replace(".mp4", ""),
+          startMs: 400,
+        },
+        { text: "", startMs: 1600 },
+      ]);
       continueRender(handle);
     } catch (e) {
       cancelRender(e);
@@ -101,9 +110,12 @@ export const CaptionedVideo: React.FC<z.infer<typeof captionedVideoSchema>> = ({
         trimBefore={130}
         volume={(f) => {
           const FADE_SECONDS = 3;
-          const baseVolume = 0.05;
+          const baseVolume = 0.03;
           const fadeFrames = Math.max(1, Math.round(FADE_SECONDS * fps));
-          const offsetSecs = typeof bgmFadeOutOffsetSeconds === "number" ? bgmFadeOutOffsetSeconds : 0;
+          const offsetSecs =
+            typeof bgmFadeOutOffsetSeconds === "number"
+              ? bgmFadeOutOffsetSeconds
+              : 0;
           const offsetFrames = Math.max(0, Math.round(offsetSecs * fps));
 
           const inFactor = Math.min(1, f / fadeFrames);
