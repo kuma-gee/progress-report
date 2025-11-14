@@ -18,10 +18,10 @@ export const RemotionRoot: React.FC = () => {
       width={1080}
       height={1920}
       defaultProps={{
-        src: staticFile("week-2.mp4"),
-        audio: staticFile("一人旅_2.mp3"),
-        from: 500,
-        to: 1335,
+        src: staticFile("week-3.mp4"),
+        audio: staticFile("Apparition’s_Lullaby.mp3"),
+        from: 250,
+        to: 1300,
       }}
     />
   );

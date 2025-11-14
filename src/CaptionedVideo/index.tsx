@@ -9,14 +9,17 @@ import {
   useVideoConfig,
   watchStaticFile,
   Html5Audio,
+  useCurrentFrame,
+  interpolate,
+  Easing,
 } from "remotion";
 import { z } from "zod";
 import SubtitlePage from "./SubtitlePage";
 import { loadFont } from "../load-font";
 
-export type SubtitleProp = {
-  startInSeconds: number;
-  text: string;
+export type VideoMove = {
+  position: number;
+  time: number;
 };
 
 export type VideoCaption = {
@@ -76,8 +79,6 @@ export const CaptionedVideo: React.FC<z.infer<typeof captionedVideoSchema>> = ({
   const fetchSubtitles = useCallback(async () => {
     try {
       await loadFont();
-      // const res = await fetch(subtitlesFile);
-      // const data = (await res.json()) as VideoCaption[];
       setSubtitles([
         {
           text: capitalizedSrc.replace("-", " ").replace(".mp4", ""),
@@ -102,6 +103,13 @@ export const CaptionedVideo: React.FC<z.infer<typeof captionedVideoSchema>> = ({
       c.cancel();
     };
   }, [fetchSubtitles, src, subtitlesFile]);
+
+  const frame = useCurrentFrame();
+  const interpolated = interpolate(frame, [200, 900], [10, 100], {
+    easing: Easing.out(Easing.quad),
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
 
   return (
     <AbsoluteFill style={{ backgroundColor: "white" }}>
@@ -130,6 +138,7 @@ export const CaptionedVideo: React.FC<z.infer<typeof captionedVideoSchema>> = ({
           style={{
             objectFit: "cover",
             height: "100%",
+            objectPosition: `${interpolated}%`,
           }}
           src={src}
           trimBefore={from}
